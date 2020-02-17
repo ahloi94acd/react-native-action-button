@@ -138,6 +138,8 @@ export default class ActionButton extends Component {
   }
 
   _renderMainButton() {
+    const { icon, renderIcon, btnOutRangeTxt, buttonTextStyle, buttonText } = this.props;
+
     const animatedViewStyle = {
       transform: [
         {
@@ -163,9 +165,12 @@ export default class ActionButton extends Component {
           this.props.btnOutRange || this.props.buttonColor
         ]
       }),
-      width: this.props.size,
-      height: this.props.size,
-      borderRadius: this.props.size / 2
+      borderRadius: this.props.size / 2,
+      borderColor: 'grey',
+      borderWidth: 1,
+      flexDirection: 'row',
+      alignItems: "center",
+      justifyContent: "center",
     };
 
     const buttonStyle = {
@@ -186,6 +191,8 @@ export default class ActionButton extends Component {
           width: this.props.size
         }
       : { marginHorizontal: this.props.offsetX, zIndex: this.props.zIndex };
+
+      const textColor = buttonTextStyle.color || "rgba(255,255,255,1)";
 
     return (
       <View style={[
@@ -210,11 +217,23 @@ export default class ActionButton extends Component {
           onPressOut={this.props.onPressOut}
         >
           <Animated.View
-            style={wrapperStyle}
+            style={[wrapperStyle, this.props.buttonStyle]}
           >
             <Animated.View style={[buttonStyle, animatedViewStyle]}>
               {this._renderButtonIcon()}
             </Animated.View>
+            {
+              buttonText ?
+                <Animated.Text
+                  style={[
+                    styles.btnText,
+                    buttonTextStyle,
+                  ]}
+                >
+                  {buttonText}
+                </Animated.Text>
+              : false
+            }
           </Animated.View>
         </Touchable>
       </View>
@@ -222,31 +241,13 @@ export default class ActionButton extends Component {
   }
 
   _renderButtonIcon() {
-    const { icon, renderIcon, btnOutRangeTxt, buttonTextStyle, buttonText } = this.props;
+    const { icon, renderIcon } = this.props;
     if (renderIcon) return renderIcon(this.state.active);
     if (icon) {
       console.warn('react-native-action-button: The `icon` prop is deprecated! Use `renderIcon` instead.');
       return icon;
     }
-
-    const textColor = buttonTextStyle.color || "rgba(255,255,255,1)";
-
-    return (
-      <Animated.Text
-        style={[
-          styles.btnText,
-          buttonTextStyle,
-          {
-            color: this.anim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [textColor, btnOutRangeTxt || textColor]
-            })
-          }
-        ]}
-      >
-        {buttonText}
-      </Animated.Text>
-    );
+    return false;
   }
 
   _renderActions() {
@@ -259,7 +260,6 @@ export default class ActionButton extends Component {
     const actionStyle = {
       flex: 1,
       alignSelf: "stretch",
-      // backgroundColor: 'purple',
       justifyContent: verticalOrientation === "up" ? "flex-end" : "flex-start",
       paddingTop: this.props.verticalOrientation === "down"
         ? this.props.spacing
@@ -349,7 +349,7 @@ ActionButton.propTypes = {
   ]),
 
   renderIcon: PropTypes.func,
-  
+
   bgColor: PropTypes.string,
   bgOpacity: PropTypes.number,
   buttonColor: PropTypes.string,
@@ -384,7 +384,7 @@ ActionButton.defaultProps = {
   bgOpacity: 1,
   buttonColor: "rgba(0,0,0,1)",
   buttonTextStyle: {},
-  buttonText: "+",
+  // buttonText: "+",
   spacing: 20,
   outRangeScale: 1,
   autoInactive: true,
@@ -418,6 +418,7 @@ const styles = StyleSheet.create({
   btnText: {
     marginTop: -4,
     fontSize: 24,
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
+    paddingRight: 20,
   }
 });
